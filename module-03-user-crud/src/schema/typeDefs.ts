@@ -12,4 +12,22 @@ export const typeDefs = /* GraphQL */ `
     id: ID!
     name: String!
   }
+
+  type Post {
+    id: ID!
+    title: String!
+    content: String!
+    author: User!
+  }
+
+  input CreateUserInput {
+    name: String!
+    email: String!
+  }
+
+  input CreatePostInput {
+    title: String!
+    content: String!
+  }
+
 `;
