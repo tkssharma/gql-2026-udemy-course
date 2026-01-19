@@ -1,6 +1,6 @@
 # Module 08-01: Prisma Basics with SQLite
 
-A minimal example demonstrating **Prisma ORM concepts** with SQLite database.
+A minimal example demonstrating **Prisma ORM concepts** with SQLite database, using **GraphQL context** to inject the Prisma client.
 
 ## Prisma Concepts Covered
 
@@ -8,6 +8,7 @@ A minimal example demonstrating **Prisma ORM concepts** with SQLite database.
 2. **Migration** - Version control your database schema changes
 3. **Seed** - Populate database with initial data
 4. **Client** - Type-safe database queries
+5. **Context** - Inject Prisma client via GraphQL context
 
 ---
 
@@ -22,8 +23,10 @@ module-08-prisma-database-01/
 ├── src/
 │   ├── index.ts         # Server entry point
 │   ├── db/prisma.ts     # Prisma client singleton
+│   ├── context/index.ts # Context factory (injects Prisma)
+│   ├── types/index.ts   # TypeScript types for context
 │   ├── schema/          # GraphQL schema
-│   └── resolvers/       # GraphQL resolvers using Prisma
+│   └── resolvers/       # GraphQL resolvers using context.prisma
 └── package.json
 ```
 
@@ -216,9 +219,71 @@ mutation {
 
 ---
 
+## Using Prisma with GraphQL Context
+
+Instead of importing Prisma directly in resolvers, we inject it via context:
+
+### 1. Define Context Type
+
+```typescript
+// src/types/index.ts
+import { PrismaClient } from '@prisma/client';
+
+export interface GraphQLContext {
+  prisma: PrismaClient;
+}
+```
+
+### 2. Create Context Factory
+
+```typescript
+// src/context/index.ts
+import { prisma } from '../db/prisma.js';
+import { GraphQLContext } from '../types/index.js';
+
+export const createContext = (): GraphQLContext => {
+  return {
+    prisma, // Prisma client passed via context
+  };
+};
+```
+
+### 3. Pass Context to Yoga
+
+```typescript
+// src/index.ts
+const yoga = createYoga({
+  schema,
+  context: createContext, // Inject Prisma via context
+});
+```
+
+### 4. Use context.prisma in Resolvers
+
+```typescript
+// src/resolvers/index.ts
+export const resolvers = {
+  Query: {
+    users: (_, __, context: GraphQLContext) => context.prisma.user.findMany(),
+
+    user: (_, args: { id: number }, context: GraphQLContext) =>
+      context.prisma.user.findUnique({ where: { id: args.id } }),
+  },
+};
+```
+
+### Why Use Context?
+
+- **Testability** - Easy to mock Prisma in tests
+- **Flexibility** - Can swap implementations
+- **Best Practice** - Resolvers don't import dependencies directly
+
+---
+
 ## Key Takeaways
 
 1. **Schema-first** - Define models in `schema.prisma`
 2. **Type-safe** - Prisma Client provides full TypeScript support
 3. **Migrations** - Track database changes over time
 4. **Seeding** - Automate initial data setup
+5. **Context injection** - Pass Prisma via context, not direct imports

@@ -1,9 +1,11 @@
 import { createServer } from 'node:http';
 import { createYoga } from 'graphql-yoga';
 import { schema } from './schema/index.js';
+import { createContext } from './context/index.js';
 
 const yoga = createYoga({
   schema,
+  context: createContext,  // Inject Prisma via context
   graphiql: {
     title: 'Prisma SQLite Demo',
     defaultQuery: `# Prisma with SQLite Demo
