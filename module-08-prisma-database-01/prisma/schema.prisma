@@ -1,0 +1,33 @@
+// Prisma Schema File
+// This file defines your database schema
+
+// Generator - creates the Prisma Client
+generator client {
+  provider = "prisma-client-js"
+}
+
+// Datasource - SQLite for local development
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+// User model - simple example
+model User {
+  id        Int      @id @default(autoincrement())
+  email     String   @unique
+  name      String
+  createdAt DateTime @default(now())
+  posts     Post[]   // One-to-many relation
+}
+
+// Post model - demonstrates relations
+model Post {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String?
+  published Boolean  @default(false)
+  authorId  Int
+  author    User     @relation(fields: [authorId], references: [id])
+  createdAt DateTime @default(now())
+}
