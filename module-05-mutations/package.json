@@ -1,0 +1,24 @@
+{
+  "name": "module-05-mutations",
+  "version": "1.0.0",
+  "description": "GraphQL Yoga demo showcasing queries, mutations, input types, and error handling",
+  "main": "dist/index.js",
+  "type": "module",
+  "scripts": {
+    "dev": "tsx watch src/index.ts",
+    "build": "tsc",
+    "start": "node dist/index.js",
+    "typecheck": "tsc --noEmit"
+  },
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "graphql": "^16.12.0",
+    "graphql-yoga": "^5.18.0"
+  },
+  "devDependencies": {
+    "@types/node": "^25.0.9",
+    "tsx": "^4.21.0",
+    "typescript": "^5.9.3"
+  }
+}
